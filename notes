@@ -1,0 +1,9 @@
+the stuff that should be inside the orders
+orderID (INT) (auto increment)
+buyerID (INT)
+sellerID (INT)
+DateTime (TIMESTAMP)
+Location (VARCHAR)
+ItemName (VARCHAR)
+Quantity (INT) 
+Price (DOUBLE)
