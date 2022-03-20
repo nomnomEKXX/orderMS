@@ -4,6 +4,9 @@ import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import firestore
 
+from flask_cors import CORS, cross_origin 
+
+
 # Use the application default credentials
 
 cred = credentials.Certificate("serviceAccountKey.json")
@@ -11,11 +14,27 @@ firebase_admin.initialize_app(cred)
 
 db = firestore.client()
 app = Flask(__name__)
+CORS(app)
 
-@app.route("/orders", methods=["GET"])
+@app.route("/orders", methods=["GET"]) 
+@cross_origin()
 def getOrders():
-    orders = db.collection('orders').document('f4zxhpSOXnINCmLv7MA3').collection('buyer').document('KVjTkmQqM8BWKhkbFL5m').get()
+    orders = db.collection('orders').document('weCssyTvRI5bJT2IHqOa').get()
     return orders.to_dict()
+
+@app.route("/order", methods=["GET","POST"])
+@cross_origin()
+def createOrder():
+    orderData = request.get_json() 
+    newOrderDoc = db.collection('orders').document()
+    newOrderDoc.set(
+        {
+    "buyerID" : orderData['buyerID'],
+    "sellerID" : orderData['sellerID'],
+    "cart" : orderData['cart']
+}
+    )
+    return 'order added to firebase successfully'
 
 if __name__ == "__main__":
     app.run(port=5000, debug=True)
