@@ -31,10 +31,10 @@ db = firestore.client()
 app = Flask(__name__)
 CORS(app)
 
-# @app.route("/", methods=["GET"])
-# @cross_origin
-# def testContainer():
-#     return 'welcome to orderMS!!!!!'
+@app.route("/", methods=["GET"])
+@cross_origin
+def testContainer():
+    return 'welcome to orderMS!!!!!'
 
 # this is not dynamic yet 
 @app.route("/orders", methods=["GET"]) 
