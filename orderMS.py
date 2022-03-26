@@ -1,11 +1,10 @@
-from audioop import cross
+# from audioop import cross
 from flask import Flask, request, jsonify
 from flask_cors import CORS, cross_origin 
 
 import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import firestore
-from os import environ
 
 
 # Use the application default credentials
@@ -37,10 +36,12 @@ CORS(app)
 #     return 'welcome to orderMS!!!!!'
 
 # this is not dynamic yet 
-@app.route("/orders", methods=["GET"]) 
+@app.route("/orders", methods=["GET","POST"]) 
 @cross_origin()
 def getOrders():
-    orders = db.collection('orders').document('Qt1UfT9hExtldgn2qsxl').get()
+    orderData = request.get_json()
+    orderID = orderData["orderID"]
+    orders = db.collection('orders').document(orderID).get()
     return orders.to_dict()
 
 # this creates a empty document first newOrderDoc, then fills up the details with the orderData params 
@@ -93,11 +94,11 @@ def updateOrder():
 
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=5050, debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True)
 
 
 
 
 
-    
+
 
