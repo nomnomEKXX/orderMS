@@ -1,4 +1,5 @@
 # from audioop import cross
+from pydoc import doc
 from flask import Flask, request, jsonify
 from flask_cors import CORS, cross_origin 
 
@@ -31,7 +32,6 @@ app = Flask(__name__)
 CORS(app)
 
 @app.route("/", methods=["GET"])
-@cross_origin
 def testContainer():
     return 'welcome to orderMS!!!!!'
 
@@ -48,8 +48,37 @@ def getOrders():
 @app.route("/order", methods=["GET","POST"])
 @cross_origin()
 def createOrder():
-    orderData = request.get_json() 
+    data = request.get_json()
+    orderData = data['order']
     newOrderDoc = db.collection('orders').document()
+
+    cart_array = []
+    for order in orderData['cart']:
+        counter = order['counter']
+        foodDesc = order['foodDesc']
+        foodName = order['foodName']
+        image = order['image']
+        oldPrice = order['oldPrice']
+        price=  order['price']
+        quantity=  order['quantity']
+        cart_array.append(
+            {
+                "counter" : counter,
+                "foodDesc" : foodDesc,
+                "foodName" : foodName,
+                "image": image,
+                "oldPrice": oldPrice,
+                "price": price,
+                "quantity": quantity,
+                "shopKey": orderData['storeID'] 
+                }
+        )
+       
+    #  loop through the cart that you receive
+    #  take each object in the array and map it's values to a temp object
+    #  push this temp object into the array
+
+        
     newOrderDoc.set(
         {   
     # "buyerID" : orderData['buyerID'],
@@ -59,25 +88,24 @@ def createOrder():
     # "collectionTime" : orderData['collectionTime']
 
     "status": orderData['status'],
-    "uid" : orderData['UID'],
+    "uid" : orderData['uid'],
     "subtotal": orderData['subtotal'],
     "storeID" : orderData['storeID'],
     "collectionTime" : orderData['collectionTime'],
-     "cart" : {
-        orderData['foodName']: {
-        "counter" : orderData['counter'],
-        "foodDesc" : orderData['foodDesc'],
-        "foodName" : orderData['foodName'],
-        "image": orderData['image'],
-        "oldPrice": orderData['oldPrice'],
-        "price": orderData['newPrice'],
-        "quantity": orderData['quantity'],
-        "shopKey": orderData['storeID'] 
+    # "cart" : [
+    #             {
+    #             "counter" : counter,
+    #             "foodDesc" : foodDesc,
+    #             "foodName" : foodName,
+    #             "image": image,
+    #             "oldPrice": oldPrice,
+    #             "price": price,
+    #             "quantity": quantity,
+    #             "shopKey": orderData['storeID'] 
+    #             }
+    #         ] 
+    "cart" : cart_array
         }
-        
-
-    }
-}
     )
     return 'order added to firebase successfully'
 
@@ -92,12 +120,44 @@ def updateOrder():
     })
     return "order status updated successfully"
 
+@app.route("/getAllOrders", methods=["GET","POST"])
+@cross_origin()
+def getAllOrders():
+    orderResults = {}
+    # allOrders = db.collection('orders').get()
+    # for order in allOrders:
+    #     order = order.to_dict()
+    #     orders.append(
+    #         order[]
+    #     )
+    # if len(orders) == 0 :
+    #     return {'code': 401, 'message': 'NO ORDERS IN DB'}
+    # return {"code": 200, "data": {"orders": orders}} 
+    # orders = db.collection('orders').document()
+    # return orders.id
+    # for key,value in orders: 
+
+        # orderID = order.id
+        # orderResults.append({key : value})
+        # return orderID
+    # return orders.to_dict()
+
+    docs = db.collection(u'orders').stream()
+
+    for doc in docs:
+        orderResults[doc.id] = doc.to_dict()
+        # return(f'{doc.id} => {doc.to_dict()}')
+    return orderResults
+    
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5000, debug=True)
 
 
+# docs = db.collection(u'cities').stream()
 
+# for doc in docs:
+#     print(f'{doc.id} => {doc.to_dict()}')
 
 
 
