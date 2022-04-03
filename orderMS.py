@@ -36,7 +36,7 @@ def testContainer():
     return 'welcome to orderMS!!!!!'
 
 # this is not dynamic yet 
-@app.route("/orders", methods=["GET","POST"]) 
+@app.route("/getOrderById", methods=["GET","POST"]) 
 @cross_origin()
 def getOrders():
     orderData = request.get_json()
@@ -45,7 +45,7 @@ def getOrders():
     return orders.to_dict()
 
 # this creates a empty document first newOrderDoc, then fills up the details with the orderData params 
-@app.route("/order", methods=["GET","POST"])
+@app.route("/createNewOrder", methods=["GET","POST"])
 @cross_origin()
 def createOrder():
     data = request.get_json()
@@ -110,7 +110,7 @@ def createOrder():
     return 'order added to firebase successfully'
 
 # this updates the orders by taking in the orderID and the new status to update 
-@app.route("/orderUpdate", methods=["GET","POST"])
+@app.route("/orderUpdate", methods=["GET","POST","PUT"])
 @cross_origin()
 def updateOrder():
     orderToUpdate = request.get_json()
@@ -151,7 +151,7 @@ def getAllOrders():
     
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=5300, debug=True)
 
 
 # docs = db.collection(u'cities').stream()
