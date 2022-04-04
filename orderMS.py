@@ -42,7 +42,10 @@ def getOrders():
     orderData = request.get_json()
     orderID = orderData["orderID"]
     orders = db.collection('orders').document(orderID).get()
-    return orders.to_dict()
+    if orders: 
+        return orders.to_dict()
+    else: 
+        return jsonify({"code": 404, "message": "Order not found"})
 
 # this creates a empty document first newOrderDoc, then fills up the details with the orderData params 
 @app.route("/createNewOrder", methods=["GET","POST"])
@@ -77,37 +80,32 @@ def createOrder():
     #  loop through the cart that you receive
     #  take each object in the array and map it's values to a temp object
     #  push this temp object into the array
-
-        
-    newOrderDoc.set(
+    try:
+        newOrderDoc.set(
         {   
-    # "buyerID" : orderData['buyerID'],
-    # "sellerID" : orderData['sellerID'],
-    # "status": orderData['status'],
-    # "cart" : orderData['cart'],
-    # "collectionTime" : orderData['collectionTime']
 
-    "status": orderData['status'],
-    "uid" : orderData['uid'],
-    "subtotal": orderData['subtotal'],
-    "storeID" : orderData['storeID'],
-    "collectionTime" : orderData['collectionTime'],
-    # "cart" : [
-    #             {
-    #             "counter" : counter,
-    #             "foodDesc" : foodDesc,
-    #             "foodName" : foodName,
-    #             "image": image,
-    #             "oldPrice": oldPrice,
-    #             "price": price,
-    #             "quantity": quantity,
-    #             "shopKey": orderData['storeID'] 
-    #             }
-    #         ] 
-    "cart" : cart_array
-        }
-    )
-    return 'order added to firebase successfully'
+            "status": orderData['status'],
+            "uid" : orderData['uid'],
+            "subtotal": orderData['subtotal'],
+            "storeID" : orderData['storeID'],
+            "collectionTime" : orderData['collectionTime'],
+            "cart" : cart_array
+                }
+            )
+        return jsonify(
+            {
+                "code": 201,
+                "message": "Order added to firebase successfully"
+            })
+  
+    except:
+        return jsonify(
+            {
+                "code": 404,
+                "message": "Error occured when creating order"
+            })
+        
+    
 
 # this updates the orders by taking in the orderID and the new status to update 
 @app.route("/orderUpdate", methods=["GET","POST","PUT"])
@@ -120,7 +118,7 @@ def updateOrder():
         'status': orderToUpdate['status']
     })
     except:
-        return jsonify({"code": 500, "message": "Error occured when "})
+        return jsonify({"code": 404, "message": "Error occured when updating order status"})
             
     return jsonify({"code": 200, "message": "Order status updated successfully"})
 
@@ -151,7 +149,17 @@ def getAllOrders():
     for doc in docs:
         orderResults[doc.id] = doc.to_dict()
         # return(f'{doc.id} => {doc.to_dict()}')
-    return orderResults
+
+    if len(orderResults)!= 0 : 
+        return orderResults
+
+    else:
+        return jsonify(
+            {
+                "code": 404,
+                "message": "There are no orders."
+            }
+        )
     
 
 if __name__ == "__main__":
