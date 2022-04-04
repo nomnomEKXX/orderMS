@@ -95,15 +95,25 @@ def createOrder():
         return jsonify(
             {
                 "code": 201,
-                "message": "Order added to firebase successfully"
+                "message": "Order added to firebase successfully",
+                "order" : {   
+                    "orderID" : newOrderDoc.id,
+                    "status": orderData['status'],
+                    "uid" : orderData['uid'],
+                    "subtotal": orderData['subtotal'],
+                    "storeID" : orderData['storeID'],
+                    "collectionTime" : orderData['collectionTime'],
+                    "cart" : cart_array
+                }
             })
   
     except:
         return jsonify(
             {
                 "code": 404,
-                "message": "Error occured when creating order"
-            })
+                "message": "Error occured when creating order",
+                
+            }), 
         
     
 
@@ -126,24 +136,6 @@ def updateOrder():
 @cross_origin()
 def getAllOrders():
     orderResults = {}
-    # allOrders = db.collection('orders').get()
-    # for order in allOrders:
-    #     order = order.to_dict()
-    #     orders.append(
-    #         order[]
-    #     )
-    # if len(orders) == 0 :
-    #     return {'code': 401, 'message': 'NO ORDERS IN DB'}
-    # return {"code": 200, "data": {"orders": orders}} 
-    # orders = db.collection('orders').document()
-    # return orders.id
-    # for key,value in orders: 
-
-        # orderID = order.id
-        # orderResults.append({key : value})
-        # return orderID
-    # return orders.to_dict()
-
     docs = db.collection(u'orders').stream()
 
     for doc in docs:
@@ -161,6 +153,21 @@ def getAllOrders():
             }
         )
     
+
+@app.route("/deleteOrder", methods=["DELETE"])
+@cross_origin()
+def deleteOrder(): 
+    orderToDelete = request.get_json()
+    order = db.collection('orders').document(orderToDelete['orderID'])
+
+    try: 
+       order.delete()
+       return jsonify({"code": 200, "message": "Successfully deleted order"})
+   
+    except:
+        return jsonify({"code": 404, "message": "Error occured when deleting order"})
+        
+        
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5300, debug=True)
