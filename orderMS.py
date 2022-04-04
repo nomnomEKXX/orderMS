@@ -115,10 +115,14 @@ def createOrder():
 def updateOrder():
     orderToUpdate = request.get_json()
     order = db.collection('orders').document(orderToUpdate['orderID'])
-    order.update({
+    try:
+        order.update({
         'status': orderToUpdate['status']
     })
-    return "order status updated successfully"
+    except:
+        return jsonify({"code": 500, "message": "Error occured when "})
+            
+    return jsonify({"code": 200, "message": "Order status updated successfully"})
 
 @app.route("/getAllOrders", methods=["GET","POST"])
 @cross_origin()
